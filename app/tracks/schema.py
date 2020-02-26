@@ -4,6 +4,7 @@ from graphene_django import DjangoObjectType
 from graphql import GraphQLError
 from .models import Track, Like
 from users.schema import UserType
+from django.db.models import Q
 
 
 class TrackType(DjangoObjectType):
@@ -17,13 +18,23 @@ class LikeType(DjangoObjectType):
 
 
 class Query(graphene.ObjectType):
-    tracks = graphene.List(TrackType)
+    tracks = graphene.List(TrackType, search=graphene.String())
     likes = graphene.List(LikeType)
+    # here we utilize the Q from django to search for multiple parameters
 
-    def resolve_tracks(self, info):
+    def resolve_tracks(self, info, search=None):
+        if search:
+            filter = (
+                Q(title__icontains=search) |
+                Q(description__icontains=search) |
+                Q(url__icontains=search) |
+                Q(posted_by__username__icontains=search)
+            )
+            return Track.objects.filter(filter)
+
         return Track.objects.all()
 
-    def resolve_likes(self, info):
+    def resolve_likes(self, info, ):
         return Like.objects.all()
 
 
