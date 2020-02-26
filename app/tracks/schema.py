@@ -1,6 +1,7 @@
 import graphene
 
 from graphene_django import DjangoObjectType
+from graphql import GraphQLError
 from .models import Track, Like
 from users.schema import UserType
 
@@ -10,11 +11,20 @@ class TrackType(DjangoObjectType):
         model = Track
 
 
+class LikeType(DjangoObjectType):
+    class Meta:
+        model = Like
+
+
 class Query(graphene.ObjectType):
     tracks = graphene.List(TrackType)
+    likes = graphene.List(LikeType)
 
     def resolve_tracks(self, info):
         return Track.objects.all()
+
+    def resolve_likes(self, info):
+        return Like.objects.all()
 
 
 class CreateTrack(graphene.Mutation):
@@ -28,7 +38,7 @@ class CreateTrack(graphene.Mutation):
     def mutate(self, info, title, description, url):
         user = info.context.user
         if user.is_anonymous:
-            raise Exception('Login to add a track')
+            raise GraphQLError('Login to add a track')
         track = Track(title=title, description=description,
                       url=url, posted_by=user)
         track.save()
@@ -49,7 +59,7 @@ class UpdateTrack(graphene.Mutation):
         track = Track.objects.get(id=track_id)
 
         if track.posted_by != user:
-            raise Exception('Not permitted to update this track')
+            raise GraphQLError('Not permitted to update this track')
 
         track.title = title
         track.description = description
@@ -71,7 +81,7 @@ class DeleteTrack(graphene.Mutation):
         track = Track.objects.get(id=track_id)
 
         if track.posted_by != user:
-            raise Exception("Not permitted to delete this track")
+            raise GraphQLError("Not permitted to delete this track")
 
         track.delete()
 
@@ -88,11 +98,11 @@ class CreateLike(graphene.Mutation):
     def mutate(self, info, track_id):
         user = info.context.user
         if user.is_anonymous:
-            raise Exception("Login to like tracks.")
+            raise GraphQLError("Login to like tracks.")
 
         track = Track.objects.get(id=track_id)
         if not track:
-            raise Exception("Cannot find tarck with giver track id")
+            raise GraphQLError("Cannot find tarck with giver track id")
 
         Like.objects.create(
             user=user,
