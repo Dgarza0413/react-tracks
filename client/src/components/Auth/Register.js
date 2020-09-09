@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Mutation } from 'react-apollo';
 import { gql } from 'apollo-boost';
 import withStyles from "@material-ui/core/styles/withStyles";
@@ -18,52 +18,108 @@ import Slide from "@material-ui/core/Slide";
 import Gavel from "@material-ui/icons/Gavel";
 import VerifiedUserTwoTone from "@material-ui/icons/VerifiedUserTwoTone";
 
-const Register = ({ classes }) => {
+function Transition(props) {
+  return <Slide direction="up" {...props} />
+}
+
+const Register = ({ classes, setNewUser }) => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const handleSubmit = async (event, createUser) => {
+    event.preventDefault()
+    const res = await createUser()
+    console.log(res)
+  }
+
+
   return <div className={classes.root}>
     <Paper className={classes.paper}>
       <Avatar className={classes.avatar}>
         <Gavel />
       </Avatar>
       <Typography variant='headline'>Register</Typography>
-      {/* <Mutation>
-        {() => {
-          return ( */}
-      <form className={classes.form}>
-        <FormControl margin='normal' required fullWidth>
-          <InputLabel htmlFor="username">Username</InputLabel>
-          <Input id="username" />
-        </FormControl>
-        <FormControl margin='normal' required fullWidth>
-          <InputLabel htmlFor="email">Email</InputLabel>
-          <Input id="email" />
-        </FormControl>
-        <FormControl margin='normal' required fullWidth>
-          <InputLabel htmlFor="password">Password</InputLabel>
-          <Input id="password" />
-        </FormControl>
-        <Button
-          type='submit'
-          fullWidth
-          variant='contained'
-          color='secondary'
-          className={classes.submit}
-        >
-          Register
+      <Mutation
+        mutation={REGISTER_MUTATION}
+        variables={{ username, email, password }}
+        onCompleted={(data) => {
+          console.log(data)
+          setOpen(true)
+        }}>
+        {(createUser, { loading, error }) => {
+          return (
+            <form
+              onSubmit={(event) => handleSubmit(event, createUser)}
+              className={classes.form}>
+              <FormControl margin='normal' required fullWidth>
+                <InputLabel htmlFor="username">Username</InputLabel>
+                <Input onChange={event => setUsername(event.target.value)} id="username" />
+              </FormControl>
+              <FormControl margin='normal' required fullWidth>
+                <InputLabel htmlFor="email">Email</InputLabel>
+                <Input onChange={event => setEmail(event.target.value)} id="email" />
+              </FormControl>
+              <FormControl margin='normal' required fullWidth>
+                <InputLabel htmlFor="password">Password</InputLabel>
+                <Input type="password" onChange={event => setPassword(event.target.value)} id="password" />
+              </FormControl>
+              <Button
+                type='submit'
+                fullWidth
+                variant='contained'
+                color='secondary'
+                disabled={loading || !username.trim() || !email.trim() || !password.trim()}
+                className={classes.submit}
+              >
+                {loading ? "Registering..." : "Register"}
+              </Button>
+              <Button
+                onClick={() => setNewUser(false)}
+                color='primary'
+                fullWidth
+                variant='outlined'
+              >
+                Previous User? Login Here
             </Button>
-        <Button
-          color='primary'
-          fullWidth
-          variant='outlined'
-        >
-          Previous User? Login Here
-            </Button>
-      </form>
-      {/* )
+
+              {error && <div>Error</div>}
+            </form>
+          )
         }}
-      </Mutation> */}
+      </Mutation>
     </Paper>
+
+    {/* Success Dialog */}
+    <Dialog open={open} disableBackdropClick={true}
+      TransitionComponent={Transition}>
+      <DialogTitle>
+        <VerifiedUserTwoTone className={classes.icon} />
+        New Account
+      </DialogTitle>
+      <DialogContent>
+        <DialogContentText>User {username} seccessfully created!</DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button color="primary" variant="contained" onClick={() => setNewUser(false)}>
+          Login
+        </Button>
+      </DialogActions>
+    </Dialog>
   </div>;
 };
+
+const REGISTER_MUTATION = gql`
+  mutation($username: String!, $email: String!, $password: String!){
+    createUser(username: $username, email: $email, password:$password){
+      user {
+        username
+        email
+      }
+    }
+  }
+`
 
 const styles = theme => ({
   root: {
