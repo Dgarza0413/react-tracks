@@ -17,65 +17,66 @@ const Login = ({ classes, setNewUser }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = async (event, tokenAuth) => {
+  const handleSubmit = async (event, tokenAuth, client) => {
     event.preventDefault()
     const res = await tokenAuth()
+    localStorage.setItem('authToken', res.data.tokenAuth.token)
     console.log(res)
+    client.writeData({ data: { isLoggedIn: true } })
   }
 
 
-  return <div className={classes.root}>
-    <Paper className={classes.paper}>
-      <Avatar className={classes.avatar}>
-        <Lock />
-      </Avatar>
-      <Typography variant='title'>Login as Exisiting User</Typography>
-      <Mutation
-        mutation={LOGIN_MUTATION}
-        variables={{ username, password }}
-        onCompleted={data => {
-          console.log(data)
-        }}
-      >
-        {(tokenAuth, { loading, error }) => {
-          return (
-            <form
-              onSubmit={(event) => handleSubmit(event, tokenAuth)}
-              className={classes.form}>
-              <FormControl margin='normal' required fullWidth>
-                <InputLabel htmlFor="username">Username</InputLabel>
-                <Input onChange={event => setUsername(event.target.value)} id="username" />
-              </FormControl>
-              <FormControl margin='normal' required fullWidth>
-                <InputLabel htmlFor="password">Password</InputLabel>
-                <Input type="password" onChange={event => setPassword(event.target.value)} id="password" />
-              </FormControl>
-              <Button
-                type='submit'
-                fullWidth
-                variant='contained'
-                color='secondary'
-                disabled={loading || !username.trim() || !password.trim()}
-                className={classes.submit}
-              >
-                {loading ? "Logging In..." : "Log In"}
-              </Button>
-              <Button
-                onClick={() => setNewUser(true)}
-                color='primary'
-                fullWidth
-                variant='outlined'
-              >
-                New User? Register Here
+  return (
+    <div className={classes.root}>
+      <Paper className={classes.paper}>
+        <Avatar className={classes.avatar}>
+          <Lock />
+        </Avatar>
+        <Typography variant='title'>Login as Exisiting User</Typography>
+        <Mutation
+          mutation={LOGIN_MUTATION}
+          variables={{ username, password }}
+        >
+          {(tokenAuth, { loading, error, called, client }) => {
+            return (
+              <form
+                onSubmit={(event) => handleSubmit(event, tokenAuth, client)}
+                className={classes.form}>
+                <FormControl margin='normal' required fullWidth>
+                  <InputLabel htmlFor="username">Username</InputLabel>
+                  <Input onChange={event => setUsername(event.target.value)} id="username" />
+                </FormControl>
+                <FormControl margin='normal' required fullWidth>
+                  <InputLabel htmlFor="password">Password</InputLabel>
+                  <Input type="password" onChange={event => setPassword(event.target.value)} id="password" />
+                </FormControl>
+                <Button
+                  type='submit'
+                  fullWidth
+                  variant='contained'
+                  color='secondary'
+                  disabled={loading || !username.trim() || !password.trim()}
+                  className={classes.submit}
+                >
+                  {loading ? "Logging In..." : "Log In"}
+                </Button>
+                <Button
+                  onClick={() => setNewUser(true)}
+                  color='primary'
+                  fullWidth
+                  variant='outlined'
+                >
+                  New User? Register Here
           </Button>
 
-              {error && <div><Error error={error} /></div>}
-            </form>
-          )
-        }}
-      </Mutation>
-    </Paper>
-  </div>;
+                {error && <div><Error error={error} /></div>}
+              </form>
+            )
+          }}
+        </Mutation>
+      </Paper>
+    </div>
+  );
 };
 
 const LOGIN_MUTATION = gql`
