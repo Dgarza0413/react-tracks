@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "corsheaders",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -43,10 +44,12 @@ INSTALLED_APPS = [
 
 GRAPHENE = {
     "SCHEMA": "app.schema.schema",
-    "MIDDLEWARE": ["graphql_jwt.middleware.JSONWebTokenMiddleware",],
+    "MIDDLEWARE": ["graphql_jwt.middleware.JSONWebTokenMiddleware", ],
 }
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -55,6 +58,10 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+]
+
+CORS_ORIGIN_WHITELIST = [
+    "http://localhost:3000"
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -101,9 +108,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator", },
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator", },
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator", },
 ]
 
 
