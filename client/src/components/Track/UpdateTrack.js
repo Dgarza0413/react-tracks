@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Mutation } from 'react-apollo';
 import axios from 'axios';
 import { gql } from 'apollo-boost';
@@ -19,15 +19,21 @@ import LibraryMusicIcon from "@material-ui/icons/LibraryMusic";
 
 
 import { GET_TRACKS_QUERY } from '../../pages/App';
+import { UserContext } from '../../Root';
 import Error from '../Shared/Error';
 
 const UpdateTrack = ({ classes, track }) => {
+  const currentUser = useContext(UserContext)
+
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState(track.title)
   const [description, setDescription] = useState(track.description)
   const [file, setFile] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [fileError, setFileError] = useState("");
+
+  const isCurrentUser = currentUser.id === track.postedBy.id
+
 
   const handleAudioChange = (event) => {
     const selectedFile = event.target.files[0]
@@ -68,7 +74,7 @@ const UpdateTrack = ({ classes, track }) => {
     updateTrack({ variables: { trackId: track.id, title, description, url: uploadedUrl } })
   }
 
-  return (
+  return isCurrentUser && (
     <>
       {/* Update Track Button */}
       <IconButton onClick={() => setOpen(true)}>
