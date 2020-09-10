@@ -1,5 +1,11 @@
 import React from "react";
 
-const AudioPlayer = () => <div>AudioPlayer</div>;
+import ReactPlayer from 'react-player';
+
+const AudioPlayer = ({ url }) => (
+    <div>
+        <ReactPlayer url={url} height="30px" width="500px" controls={true} />
+    </div>
+);
 
 export default AudioPlayer;
