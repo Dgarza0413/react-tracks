@@ -32,7 +32,7 @@ const CreateTrack = ({ classes }) => {
 
   const handleAudioChange = (event) => {
     const selectedFile = event.target.files[0]
-    const fileSizeLimit = 1000000;
+    const fileSizeLimit = 10000000;
     if (selectedFile && selectedFile.size > fileSizeLimit) {
       setFileError(`${selectedFile.name}: File size too large`)
     } else {
