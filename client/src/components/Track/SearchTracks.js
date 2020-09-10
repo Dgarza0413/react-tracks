@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { ApolloConsumer } from 'react-apollo';
 import { gql } from 'apollo-boost';
 import withStyles from "@material-ui/core/styles/withStyles";
@@ -8,8 +8,15 @@ import Paper from "@material-ui/core/Paper";
 import IconButton from "@material-ui/core/IconButton";
 import SearchIcon from "@material-ui/icons/Search";
 
-const SearchTracks = ({ classes }) => {
+const SearchTracks = ({ classes, setSearchResults }) => {
   const [search, setSearch] = useState('')
+  const inputEl = useRef()
+
+  const clearSearchInput = () => {
+    setSearchResults([])
+    setSearch('')
+    inputEl.current.focus()
+  }
 
   const handleSubmit = async (event, client) => {
     event.preventDefault()
@@ -17,7 +24,7 @@ const SearchTracks = ({ classes }) => {
       query: SEARCH_TRACKS_QUERY,
       variables: { search }
     })
-    console.log({ res });
+    setSearchResults(res.data.tracks)
   }
 
   return (
@@ -26,7 +33,7 @@ const SearchTracks = ({ classes }) => {
         return (
           <form onSubmit={event => handleSubmit(event, client)}>
             <Paper className={classes.root} elevation={1}>
-              <IconButton>
+              <IconButton onClick={clearSearchInput}>
                 <ClearIcon />
               </IconButton>
               <TextField
@@ -35,7 +42,9 @@ const SearchTracks = ({ classes }) => {
                 InputProps={{
                   disableUnderline: true
                 }}
-                onChange={event => setSearch(event.target.value)}>
+                onChange={event => setSearch(event.target.value)}
+                value={search}
+                inputRef={inputEl}>
                 <IconButton type="submit">
                   <SearchIcon />
                 </IconButton>
