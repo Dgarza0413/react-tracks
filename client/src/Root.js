@@ -35,12 +35,17 @@ const Root = () => (
     </Query>
 );
 
-const ME_QUERY = gql`
+export const ME_QUERY = gql`
 {
     me {
         id
         email
         username
+        likeSet {
+            track {
+                id
+            }
+        }
     }
 }
 `
