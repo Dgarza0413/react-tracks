@@ -57,7 +57,6 @@ const CreateTrack = ({ classes }) => {
       console.error('Error uploading file', error)
       setSubmitting(false)
     }
-
   }
 
   const handleUpdateCache = (cache, { data: { createTrack } }) => {
@@ -201,11 +200,11 @@ mutation($title: String!, $description: String!, $url: String!){
       url
       likes {
       id
-    }
-    postedBy{
-      id
-      username
-    }
+      }
+      postedBy{
+        id
+        username
+      }
     }
   }
 }

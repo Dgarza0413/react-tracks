@@ -10,6 +10,7 @@ import Typography from "@material-ui/core/Typography";
 import ThumbUpIcon from "@material-ui/icons/ThumbUpTwoTone";
 import AudiotrackIcon from "@material-ui/icons/AudiotrackTwoTone";
 import Divider from "@material-ui/core/Divider";
+import format from 'date-fns/format';
 
 import AudioPlayer from '../components/Shared/AudioPlayer'
 import Error from '../components/Shared/Error'
@@ -33,7 +34,7 @@ const Profile = ({ classes, match }) => {
                     {data.user.username[0]}
                   </Avatar>}
                 title={data.user.username}
-                subheader={`Join ${data.user.dateJoined}`}
+                subheader={`Joined ${format(data.user.dateJoined, 'MMM Do, YYYY')}`}
               />
             </Card>
             {/* Created Tracks */}
@@ -59,6 +60,7 @@ const Profile = ({ classes, match }) => {
             <Paper elevation={1} className={classes.paper}>
               <Typography variant="title" className={classes.title}>
                 <ThumbUpIcon className={classes.thumbIcon} />
+                Liked Tracks
               </Typography>
               {data.user.likeSet.map(({ track }) => {
                 return (
